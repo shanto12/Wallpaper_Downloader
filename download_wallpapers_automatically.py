@@ -6,7 +6,7 @@ from string import Template
 
 IM_FOLDER = "C:/Users/smatthew/Downloads/wallpapers"
 HOME_URL = "http://wallpaperswide.com/3440x1440-wallpapers-r/page/"
-LIMIT = 1
+LIMIT = None
 DONT_DOWNLOAD_SET = {'latest_wallpapers', 'aero-desktop-wallpapers', 'animals-desktop-wallpapers',
                      'architecture-desktop-wallpapers', 'army-desktop-wallpapers', 'artistic-desktop-wallpapers',
                      'awareness-desktop-wallpapers', 'black_and_white-desktop-wallpapers',
