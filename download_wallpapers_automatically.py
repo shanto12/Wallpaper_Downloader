@@ -4,7 +4,6 @@ import shutil  # to save it locally
 import re
 from string import Template
 
-changed
 
 IM_FOLDER = "C:/Users/smatthew/Downloads/wallpapers"
 HOME_URL = "http://wallpaperswide.com/3440x1440-wallpapers-r/page/"
