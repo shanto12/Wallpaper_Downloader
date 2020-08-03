@@ -1,32 +1,17 @@
 ## Importing Necessary Modules
 import requests  # to get image from the web
 import shutil  # to save it locally
-import re
-from string import Template
+from bs4 import BeautifulSoup
 
-
-IM_FOLDER = "C:/Users/smatthew/Downloads/wallpapers"
-HOME_URL = "http://wallpaperswide.com/3440x1440-wallpapers-r/page/"
+IM_FOLDER1 = "C:/Data/Wallpapers/3840"
+IM_FOLDER2 = "C:/Data/Wallpapers/5120"
+HOME_URL = "https://superultrawidewallpaper.com"
 LIMIT = None
-DONT_DOWNLOAD_SET = {'latest_wallpapers', 'aero-desktop-wallpapers', 'animals-desktop-wallpapers',
-                     'architecture-desktop-wallpapers', 'army-desktop-wallpapers', 'artistic-desktop-wallpapers',
-                     'awareness-desktop-wallpapers', 'black_and_white-desktop-wallpapers',
-                     'cartoons-desktop-wallpapers', 'celebrities-desktop-wallpapers', 'city-desktop-wallpapers',
-                     'computers-desktop-wallpapers', 'cute-desktop-wallpapers', 'elements-desktop-wallpapers',
-                     'food_and_drink-desktop-wallpapers', 'funny-desktop-wallpapers', 'games-desktop-wallpapers',
-                     'girls-desktop-wallpapers', 'holidays-desktop-wallpapers', 'love-desktop-wallpapers',
-                     'motors-desktop-wallpapers', 'movies-desktop-wallpapers', 'music-desktop-wallpapers',
-                     'nature-desktop-wallpapers', 'seasons-desktop-wallpapers', 'space-desktop-wallpapers',
-                     'sports-desktop-wallpapers', 'travel-desktop-wallpapers', 'vintage-desktop-wallpapers'}
 
 
-pattern = '<a href="/((?!\d*x\d*).{15,90}).html" title='
-pattern = re.compile(pattern)
-t = Template('http://wallpaperswide.com/download/$wall_name-$resolution.jpg')
-
-def download_image(image_url):
+def download_image(image_url, folder_path):
     filename = image_url.split("/")[-1]
-    file_path = IM_FOLDER + "/" + filename
+    file_path = folder_path + "/" + filename
 
     # Open the url image, set stream to True, this will return the stream content.
     r = requests.get(image_url, stream=True)
@@ -48,51 +33,57 @@ def download_image(image_url):
 
         return False
 
-def process_page(page_url):
-    r = requests.get(page_url)
+def get_wallpaper_pages(main_page_url):
+    r = requests.get(main_page_url)
     page_text = r.text
 
-    image_name_list = pattern.findall(page_text)
-    image_name_set = {x[:-1] for x in image_name_list if x not in DONT_DOWNLOAD_SET}
-    print(f"Page Processed: {page_url}")
-    return image_name_set
+    url_set = set()
+
+    soup = BeautifulSoup(page_text, 'html.parser')
+    for link in soup.find_all('a'):
+        url = link.get('href')
+        if "-and-" in url:
+            url_set.add(url)
+
+    print(f"Page Processed: {main_page_url}")
+    return url_set
 
 def process_image_downloads(image_name_set):
     for image_name in image_name_set:
-        for resolution in ["5120x2160","3840x2160", "3840x1600"]:
-            image_url = t.substitute(wall_name=image_name, resolution=resolution)
-            if download_image(image_url):
-                break
+        r = requests.get(image_name)
+        page_text = r.text
+
+        # url_set = set()
+
+        soup = BeautifulSoup(page_text, 'html.parser')
+        # found = False
+        for link in soup.find_all('form'):
+            url = link.get('action')
+            if "5120x1440" in url:
+                if download_image(url, IM_FOLDER1):
+                    pass
+            elif "3840x1080" in url:
+                if download_image(url, IM_FOLDER2):
+                    pass
+            else:
+                print("Found another url: {}".format(url))
+
         else:
             print("WARNING:No url found for image_name: {}".format(image_name))
 
-# def test():
-#     pass
-#     text = """
-#     <a href="/chamarel_waterfalls_mauritius-wallpapers.html" title="View Chamarel Waterfalls, Mauritius Ultra HD Wallpaper for 4K UHD Widescreen desktop, tablet & smartphone" itemprop="significantLinks">
-#     <a href="/chamarel_waterfalls_mauritius-wallpapers.html" title="Chamarel Waterfalls, Mauritius Ultra HD Wallpaper for 4K UHD Widescreen desktop, tablet & smartphone">
-#     <a href="/shanto.html" title="Chamarel Waterfalls, Mauritius Ultra HD Wallpaper for 4K UHD Widescreen desktop, tablet & smartphone">
-#     <a href="/3840x1600-wallpapers-r.html" title="Chamarel Waterfalls, Mauritius Ultra HD Wallpaper for 4K UHD Widescreen desktop, tablet & smartphone">
-# """
-#     pattern = '<a href="/(.*).html" title='
-#     pattern = '<a href="/((?!\d*x\d*).{15,}).html" title='
-#
-#     pattern = re.compile(pattern)
-#     result = pattern.findall(text)
-#     print("done")
 
 def main():
     page_num = 1
-    page_url = HOME_URL + str(page_num)
+    page_url = HOME_URL + "/page/" + str(page_num)
     image_name_set = set()
 
-    while (page_image_name_set:=process_page(page_url)) and (LIMIT is None or page_num<=LIMIT):
+    while (page_image_name_set:=get_wallpaper_pages(page_url)) and (LIMIT is None or page_num<=LIMIT):
         print(f"Page number processing : {page_num}")
-        if len(page_image_name_set)!=18:
-            print("WARNING: Found length not equal to 18: Length: {}".format(len(page_image_name_set)))
+        # if len(page_image_name_set)!=18:
+        #     print("WARNING: Found length not equal to 18: Length: {}".format(len(page_image_name_set)))
         image_name_set.update(page_image_name_set)
         page_num +=1
-        page_url = HOME_URL + str(page_num)
+        page_url = HOME_URL + "/page/" + str(page_num)
 
     process_image_downloads(image_name_set)
 
