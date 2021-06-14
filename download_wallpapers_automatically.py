@@ -4,6 +4,7 @@ import shutil  # to save it locally
 import re
 from string import Template
 from bs4 import BeautifulSoup
+#asdfasdf
 
 IM_FOLDER = "C:\Data\Wallpapers\Another"
 HOME_URL = "https://www.hdrshooter.com/wallpapers/super-ultra-wide-wallpapers/"
