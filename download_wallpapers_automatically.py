@@ -4,10 +4,12 @@ import shutil  # to save it locally
 import re
 from string import Template
 from bs4 import BeautifulSoup
-#asdfasdf
+#NOT WORKING
 
-IM_FOLDER = "C:\Data\Wallpapers\Another"
-HOME_URL = "https://www.hdrshooter.com/wallpapers/super-ultra-wide-wallpapers/"
+
+
+IM_FOLDER = "C:\Data\Wallpapers\Another 2"
+HOME_URL = "https://wallpaperaccess.com/5120x1440"
 LIMIT = None
 # DONT_DOWNLOAD_SET = {'latest_wallpapers', 'aero-desktop-wallpapers', 'animals-desktop-wallpapers',
 #                      'architecture-desktop-wallpapers', 'army-desktop-wallpapers', 'artistic-desktop-wallpapers',
@@ -57,7 +59,8 @@ def process_page(page_url):
     html_page = page_text
     soup = BeautifulSoup(html_page)
     url_list = [link.get('href') for link in soup.findAll('a') if
-                link.get('href') and link.get('href').endswith(".jpg")]
+                link.get('href')]
+    url_list = [url for url in url_list if url.endswith(".jpg")]
     for index, url in enumerate(url_list, start=1):
         print(index, url)
 
